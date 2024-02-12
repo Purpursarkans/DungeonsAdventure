@@ -1,0 +1,49 @@
+[gd_scene load_steps=5 format=3 uid="uid://dqk0vqnri3qu8"]
+
+[ext_resource type="PackedScene" uid="uid://dua501c4eoeev" path="res://Scenes/level1.tscn" id="1_dxfga"]
+[ext_resource type="PackedScene" uid="uid://d03hsg8swu0rm" path="res://Scenes/player.tscn" id="2_tlcab"]
+[ext_resource type="PackedScene" uid="uid://d2ipx5lxef4m0" path="res://Scenes/pause_menu.tscn" id="3_vspg8"]
+
+[sub_resource type="GDScript" id="GDScript_tnkor"]
+resource_name = "Game"
+script/source = "extends Node3D
+
+@export var PlayerScene : PackedScene
+
+func _ready():
+	var index = 0
+	for i in G.Players:
+		var currentplayer = PlayerScene.instantiate()
+		currentplayer.name = str(G.Players[i].id)
+		add_child(currentplayer)
+		for spawn in get_tree().get_nodes_in_group(\"PlayerSpawnPos\"):
+			if spawn.name == str(index):
+				currentplayer.global_position = spawn.global_position
+		index += 1
+
+
+func _process(delta):
+	if Input.is_action_just_pressed(\"escape\"):
+		if G.pause:
+			Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
+			$PauseMenu.hide()
+		else:
+			Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
+			$PauseMenu.show()
+		G.pause = !G.pause
+			
+	pass
+"
+
+[node name="game" type="Node3D"]
+script = SubResource("GDScript_tnkor")
+PlayerScene = ExtResource("2_tlcab")
+
+[node name="Level1" parent="." instance=ExtResource("1_dxfga")]
+
+[node name="Player" parent="." instance=ExtResource("2_tlcab")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.1, 0)
+
+[node name="PauseMenu" parent="." instance=ExtResource("3_vspg8")]
+visible = false
+menu = "res://Scenes/main_menu.tscn"
