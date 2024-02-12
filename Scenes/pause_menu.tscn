@@ -6,16 +6,6 @@ script/source = "extends Control
 
 @export_file() var menu
 
-# Called when the node enters the scene tree for the first time.
-func _ready():
-	pass # Replace with function body.
-
-
-# Called every frame. 'delta' is the elapsed time since the previous frame.
-func _process(delta):
-	pass
-
-
 func _on_return_button_down():
 	hide()
 	pass # Replace with function body.
@@ -26,8 +16,16 @@ func _on_host_button_down():
 
 
 func _on_menu_button_down():
-	get_tree().change_scene_to_file(menu)
+	print_debug(multiplayer.get_unique_id())
+	cl.rpc(multiplayer.get_unique_id())
+	$\"..\".get_tree().change_scene_to_file(menu)
 	pass # Replace with function body.
+
+@rpc(\"any_peer\")
+func cl(id):
+	G.Players.erase(id)
+	var tt = get_node(\"../\"+str(id))
+	tt.queue_free()
 "
 
 [node name="PauseMenu" type="Control"]

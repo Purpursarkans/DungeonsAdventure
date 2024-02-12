@@ -11,6 +11,7 @@ script/source = "extends Node3D
 @export var PlayerScene : PackedScene
 
 func _ready():
+	G.pause = false
 	var index = 0
 	for i in G.Players:
 		var currentplayer = PlayerScene.instantiate()
@@ -47,3 +48,6 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.1, 0)
 [node name="PauseMenu" parent="." instance=ExtResource("3_vspg8")]
 visible = false
 menu = "res://Scenes/main_menu.tscn"
+
+[node name="SpawnPoint" type="Area3D" parent="." groups=["PlayerSpawnPos"]]
+transform = Transform3D(0.999491, -0.0318992, 0, 0.0318992, 0.999491, 0, 0, 0, 1, -2.54961, 6.60546, -8.07841)

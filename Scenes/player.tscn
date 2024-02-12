@@ -21,6 +21,9 @@ var gravity = ProjectSettings.get_setting(\"physics/3d/default_gravity\")
 
 func _ready():
 	Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
+	$MultiplayerSynchronizer.set_multiplayer_authority(str(name).to_int())
+	if $MultiplayerSynchronizer.get_multiplayer_authority() == multiplayer.get_unique_id():
+		$Head/Camera3D.make_current()
 
 var action_object = null
 
@@ -33,75 +36,77 @@ func action():
 			action_object.open()
 
 func _physics_process(delta):
-	
-	tempFloor = tempFloor2
-	tempFloor2 = is_on_floor()
-	
-	if is_on_floor() && tempFloor == false && tempFloor2 == true:
-		#print_debug(\"приземление\")
-		if !$Audio/AudioWalk.playing:
-			if $Audio/Timer.is_stopped():
-				$Audio/Timer.start()
-				$Audio/AudioWalk.play()
-				
-	
-	
-	if Input.is_action_just_pressed(\"ScreenShot\"):
-		take_screenshot()
-	
-	var SPEED = 5.0
-	const SPEED_UP = 2
-	
-	# Add the gravity.
-	if not is_on_floor():
-		velocity.y -= gravity * delta
 
-	# Handle Jump.
-	if Input.is_action_pressed(\"space\") and is_on_floor():
-		velocity.y = JUMP_VELOCITY
-	
-	if Input.is_action_pressed(\"move_speed_up\"):
-		SPEED *= SPEED_UP
-	
-	# Get the input direction and handle the movement/deceleration.
-	# As good practice, you should replace UI actions with custom gameplay actions.
-	var input_dir = Input.get_vector(\"move_left\", \"move_right\", \"move_up\", \"move_down\")
-	var direction = (transform.basis * Vector3(input_dir.x, 0, input_dir.y)).normalized()
-	if direction:
-		velocity.x = direction.x * SPEED
-		velocity.z = direction.z * SPEED
+	if $MultiplayerSynchronizer.get_multiplayer_authority() == multiplayer.get_unique_id() || G.Players.is_empty():
+		tempFloor = tempFloor2
+		tempFloor2 = is_on_floor()
 		
-		if is_on_floor():
+		if is_on_floor() && tempFloor == false && tempFloor2 == true:
+			#print_debug(\"приземление\")
 			if !$Audio/AudioWalk.playing:
 				if $Audio/Timer.is_stopped():
 					$Audio/Timer.start()
 					$Audio/AudioWalk.play()
+					
 		
-	else:
-		velocity.x = move_toward(velocity.x, 0, SPEED)
-		velocity.z = move_toward(velocity.z, 0, SPEED)
-	move_and_slide()
+		
+		if Input.is_action_just_pressed(\"ScreenShot\"):
+			take_screenshot()
+		
+		var SPEED = 5.0
+		const SPEED_UP = 2
+		
+		# Add the gravity.
+		if not is_on_floor():
+			velocity.y -= gravity * delta
+
+		# Handle Jump.
+		if Input.is_action_pressed(\"space\") and is_on_floor():
+			velocity.y = JUMP_VELOCITY
+		
+		if Input.is_action_pressed(\"move_speed_up\"):
+			SPEED *= SPEED_UP
+		
+		# Get the input direction and handle the movement/deceleration.
+		# As good practice, you should replace UI actions with custom gameplay actions.
+		var input_dir = Input.get_vector(\"move_left\", \"move_right\", \"move_up\", \"move_down\")
+		var direction = (transform.basis * Vector3(input_dir.x, 0, input_dir.y)).normalized()
+		if direction:
+			velocity.x = direction.x * SPEED
+			velocity.z = direction.z * SPEED
+			
+			if is_on_floor():
+				if !$Audio/AudioWalk.playing:
+					if $Audio/Timer.is_stopped():
+						$Audio/Timer.start()
+						$Audio/AudioWalk.play()
+			
+		else:
+			velocity.x = move_toward(velocity.x, 0, SPEED)
+			velocity.z = move_toward(velocity.z, 0, SPEED)
+		move_and_slide()
 
 
 
 func _input(e):
-	if !G.pause:
-		if e is InputEventMouseMotion:
-			rot_x -= e.relative.y * G.Sensivity * G.FixSensivity
-			rot_y = -e.relative.x * G.Sensivity * G.FixSensivity
-			
-			#transform.basis = Basis(Vector3(0,1,0), rot_y) * transform.basis
-			transform.basis = transform.basis.rotated(Vector3(0,1,0), rot_y)
-			
-			if rot_x <= max_view && rot_x >= mix_view:
-				$Head.transform.basis = Basis(Vector3(1,0,0), rot_x)
+	if $MultiplayerSynchronizer.get_multiplayer_authority() == multiplayer.get_unique_id() || G.Players.is_empty():
+		if !G.pause:
+			if e is InputEventMouseMotion:
+				rot_x -= e.relative.y * G.Sensivity * G.FixSensivity
+				rot_y = -e.relative.x * G.Sensivity * G.FixSensivity
+				
+				#transform.basis = Basis(Vector3(0,1,0), rot_y) * transform.basis
+				transform.basis = transform.basis.rotated(Vector3(0,1,0), rot_y)
+				
+				if rot_x <= max_view && rot_x >= mix_view:
+					$Head.transform.basis = Basis(Vector3(1,0,0), rot_x)
 
-			if rot_x > max_view: rot_x = max_view
-			elif rot_x < mix_view: rot_x = mix_view
-			
-		if e is InputEventMouse:
-			if e.is_action_pressed(\"leftMouse\"):
-				action()
+				if rot_x > max_view: rot_x = max_view
+				elif rot_x < mix_view: rot_x = mix_view
+				
+			if e is InputEventMouse:
+				if e.is_action_pressed(\"leftMouse\"):
+					action()
 
 
 
