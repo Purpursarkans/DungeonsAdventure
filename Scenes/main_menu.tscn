@@ -11,7 +11,6 @@ func _ready():
 	multiplayer.connected_to_server.connect(connected_to_server)
 	multiplayer.connection_failed.connect(connection_failed)
 
-
 @export var ADRESS = \"127.0.0.1\"
 @export var PORT = 25565
 var peer
