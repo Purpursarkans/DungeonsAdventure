@@ -144,6 +144,7 @@ properties/2/replication_mode = 1
 
 [node name="Player" type="CharacterBody3D"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0)
+collision_layer = 2
 script = SubResource("GDScript_n2jod")
 
 [node name="BodyMeshInstance3D" type="MeshInstance3D" parent="."]

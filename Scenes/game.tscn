@@ -50,4 +50,11 @@ visible = false
 menu = "res://Scenes/main_menu.tscn"
 
 [node name="SpawnPoint" type="Area3D" parent="." groups=["PlayerSpawnPos"]]
-transform = Transform3D(0.999491, -0.0318992, 0, 0.0318992, 0.999491, 0, 0, 0, 1, -2.54961, 6.60546, -8.07841)
+transform = Transform3D(0.999491, -0.0318992, 0, 0.0318992, 0.999491, 0, 0, 0, 1, -2.67828, 7.69337, -8.0548)
+
+[node name="Label" type="Label" parent="."]
+offset_right = 40.0
+offset_bottom = 23.0
+text = "test"
+
+[node name="CanvasLayer" type="CanvasLayer" parent="."]
