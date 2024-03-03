@@ -13,6 +13,7 @@ func _on_return_button_down():
 
 
 func _on_menu_button_down():
+	$\"/root/game/MainMenu\".exit_game(G.playerid)
 	$\"/root/game\".get_tree().reload_current_scene()
 "
 

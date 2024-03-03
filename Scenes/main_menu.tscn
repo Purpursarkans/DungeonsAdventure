@@ -21,9 +21,6 @@ var peer = ENetMultiplayerPeer.new()
 func _on_exit_button_down():
 	get_tree().quit()
 
-
-
-
 func _on_host_button_down():
 	hide()
 	peer.create_server(PORT)
@@ -38,14 +35,15 @@ func _on_connect_button_down():
 	multiplayer.multiplayer_peer = peer
 	pass # Replace with function body.
 
-var player
+
 
 func add_player(id = 1):
-	player = playerScene.instantiate()
+	var player = playerScene.instantiate()
 	player.name = str(id)
 	$\"/root/game\".call_deferred(\"add_child\",player)
 	
 func exit_game(id):
+	print_debug(id)
 	multiplayer.peer_disconnected.connect(del_player)
 	del_player(id)
 
@@ -54,9 +52,8 @@ func del_player(id):
 	
 @rpc(\"any_peer\",\"call_local\")
 func _del_player(id):
-	print(id)
 	if id != null:
-		get_node(str(id)).queue_free()
+		$\"/root/game\".get_node(str(id)).queue_free()
 "
 
 [node name="MainMenu" type="Control"]

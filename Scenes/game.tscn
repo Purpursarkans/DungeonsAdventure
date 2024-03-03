@@ -13,7 +13,7 @@ script/source = "extends Node3D
 @export var PlayerScene : PackedScene
 
 func _ready():
-	pass
+	G.pause = false
 
 
 func _process(delta):
@@ -35,10 +35,6 @@ PlayerScene = ExtResource("2_tlcab")
 
 [node name="Level1" parent="." instance=ExtResource("1_dxfga")]
 
-[node name="PauseMenu" parent="." instance=ExtResource("3_vspg8")]
-visible = false
-menu = "res://Scenes/main_menu.tscn"
-
 [node name="Label" type="Label" parent="."]
 offset_right = 40.0
 offset_bottom = 23.0
@@ -47,6 +43,9 @@ text = "test"
 [node name="MainMenu" parent="." instance=ExtResource("4_reolg")]
 
 [node name="MultiplayerMenu" parent="." instance=ExtResource("5_ehif4")]
+visible = false
+
+[node name="PauseMenu" parent="." instance=ExtResource("3_vspg8")]
 visible = false
 
 [node name="MultiplayerSpawner" type="MultiplayerSpawner" parent="."]
