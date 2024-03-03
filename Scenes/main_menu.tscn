@@ -1,4 +1,6 @@
-[gd_scene load_steps=2 format=3 uid="uid://bhnsy5o2jefqe"]
+[gd_scene load_steps=3 format=3 uid="uid://bhnsy5o2jefqe"]
+
+[ext_resource type="PackedScene" uid="uid://d03hsg8swu0rm" path="res://Scenes/player.tscn" id="1_ot5xp"]
 
 [sub_resource type="GDScript" id="GDScript_4738c"]
 resource_name = "MainMenu"
@@ -6,84 +8,55 @@ script/source = "extends Control
 
 
 func _ready():
-	multiplayer.peer_connected.connect(peer_connected)
-	multiplayer.peer_disconnected.connect((peer_disconnected))
-	multiplayer.connected_to_server.connect(connected_to_server)
-	multiplayer.connection_failed.connect(connection_failed)
+	pass
 
 @export var ADRESS = \"127.0.0.1\"
 @export var PORT = 25565
-var peer
-
-var start = 0
-
-func peer_connected(id):
-	print_debug(\"Player connected \" + str(id))
-
-func peer_disconnected(id):
-	print_debug(\"Player disconnected \" + str(id))
-
-func connected_to_server():
-	print_debug(\"connected to server!\")
-	SendPlayerInfo.rpc_id(1, \"NAME\", multiplayer.get_unique_id())
-	#StartGame.rpc()
-
-func connection_failed():
-	print_debug(\"connection failed\")
+@export var playerScene : PackedScene
 
 
-@rpc(\"any_peer\")
-func SendPlayerInfo(name, id):
-	if !G.Players.has(id):
-		G.Players[id] = {
-			\"name\" : name,
-			\"id\" : id
-		}
-	if multiplayer.is_server():
-		for i in G.Players:
-			SendPlayerInfo.rpc(G.Players[i].name, i)
+var peer = ENetMultiplayerPeer.new()
 
-@rpc(\"any_peer\",\"call_local\")
-func StartGame():
-	if start == 0:
-		get_tree().change_scene_to_file(\"res://Scenes/game.tscn\")
-		start = 0
 
 func _on_exit_button_down():
 	get_tree().quit()
 
 
-func _on_multiplayer_button_down():
-	pass
 
 
-func _on_start_button_down():
-	get_tree().change_scene_to_file(\"res://Scenes/game.tscn\")
-	pass
+func _on_host_button_down():
+	hide()
+	peer.create_server(PORT)
+	multiplayer.multiplayer_peer = peer
+	multiplayer.peer_connected.connect(add_player)
+	add_player()
 
 
-func _on_host_1_button_down():
-	peer = ENetMultiplayerPeer.new()
-	var error = peer.create_server(PORT)
-	if error != OK:
-		print_debug(\"cannot host: \" + str(error))
-		return
-	peer.get_host().compress(ENetConnection.COMPRESS_RANGE_CODER)
-	
-	multiplayer.set_multiplayer_peer(peer)
-	print_debug(\"server started,waiting players\")
-	SendPlayerInfo(\"HOST\", multiplayer.get_unique_id())
-
-
-func _on_join_1_button_down():
-	peer = ENetMultiplayerPeer.new()
+func _on_connect_button_down():
+	hide()
 	peer.create_client(ADRESS,PORT)
-	peer.get_host().compress(ENetConnection.COMPRESS_RANGE_CODER)
-	multiplayer.set_multiplayer_peer(peer)
+	multiplayer.multiplayer_peer = peer
+	pass # Replace with function body.
 
+var player
 
-func _on_start_1_button_down():
-	StartGame.rpc()
+func add_player(id = 1):
+	player = playerScene.instantiate()
+	player.name = str(id)
+	$\"/root/game\".call_deferred(\"add_child\",player)
+	
+func exit_game(id):
+	multiplayer.peer_disconnected.connect(del_player)
+	del_player(id)
+
+func del_player(id):
+	rpc(\"_del_player\",id)
+	
+@rpc(\"any_peer\",\"call_local\")
+func _del_player(id):
+	print(id)
+	if id != null:
+		get_node(str(id)).queue_free()
 "
 
 [node name="MainMenu" type="Control"]
@@ -94,23 +67,24 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 script = SubResource("GDScript_4738c")
+playerScene = ExtResource("1_ot5xp")
 
-[node name="Start" type="Button" parent="."]
+[node name="Host" type="Button" parent="."]
 layout_mode = 0
 anchor_left = 0.36875
 anchor_top = 0.344444
 anchor_right = 0.4875
 anchor_bottom = 0.427778
-text = "start"
+text = "Host"
 metadata/_edit_use_anchors_ = true
 
-[node name="Multiplayer" type="Button" parent="."]
+[node name="Connect" type="Button" parent="."]
 layout_mode = 0
 anchor_left = 0.36875
 anchor_top = 0.45
 anchor_right = 0.4875
 anchor_bottom = 0.531944
-text = "multiplayer"
+text = "Connect"
 metadata/_edit_use_anchors_ = true
 
 [node name="Exit" type="Button" parent="."]
@@ -123,38 +97,6 @@ text = "exit
 "
 metadata/_edit_use_anchors_ = true
 
-[node name="host1" type="Button" parent="."]
-layout_mode = 0
-anchor_left = 0.664844
-anchor_top = 0.211111
-anchor_right = 0.828125
-anchor_bottom = 0.301389
-text = "host
-"
-metadata/_edit_use_anchors_ = true
-
-[node name="join1" type="Button" parent="."]
-layout_mode = 0
-anchor_left = 0.664844
-anchor_top = 0.322222
-anchor_right = 0.828125
-anchor_bottom = 0.4125
-text = "join"
-metadata/_edit_use_anchors_ = true
-
-[node name="start1" type="Button" parent="."]
-layout_mode = 0
-anchor_left = 0.664844
-anchor_top = 0.45
-anchor_right = 0.828125
-anchor_bottom = 0.540278
-text = "start
-"
-metadata/_edit_use_anchors_ = true
-
-[connection signal="button_down" from="Start" to="." method="_on_start_button_down"]
-[connection signal="button_down" from="Multiplayer" to="." method="_on_multiplayer_button_down"]
+[connection signal="button_down" from="Host" to="." method="_on_host_button_down"]
+[connection signal="button_down" from="Connect" to="." method="_on_connect_button_down"]
 [connection signal="button_down" from="Exit" to="." method="_on_exit_button_down"]
-[connection signal="button_down" from="host1" to="." method="_on_host_1_button_down"]
-[connection signal="button_down" from="join1" to="." method="_on_join_1_button_down"]
-[connection signal="button_down" from="start1" to="." method="_on_start_1_button_down"]

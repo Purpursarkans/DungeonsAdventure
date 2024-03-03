@@ -8,24 +8,12 @@ script/source = "extends Control
 
 func _on_return_button_down():
 	hide()
-	pass # Replace with function body.
-
-
-func _on_host_button_down():
-	pass # Replace with function body.
+	Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
+	G.pause = !G.pause
 
 
 func _on_menu_button_down():
-	print_debug(multiplayer.get_unique_id())
-	cl.rpc(multiplayer.get_unique_id())
-	$\"..\".get_tree().change_scene_to_file(menu)
-	pass # Replace with function body.
-
-@rpc(\"any_peer\")
-func cl(id):
-	G.Players.erase(id)
-	var tt = get_node(\"../\"+str(id))
-	tt.queue_free()
+	$\"/root/game\".get_tree().reload_current_scene()
 "
 
 [node name="PauseMenu" type="Control"]
@@ -40,19 +28,11 @@ script = SubResource("GDScript_tdaum")
 [node name="return" type="Button" parent="."]
 layout_mode = 0
 offset_left = 8.0
-offset_top = 94.0
+offset_top = 181.0
 offset_right = 161.0
-offset_bottom = 173.0
+offset_bottom = 260.0
 text = "return
 "
-
-[node name="host" type="Button" parent="."]
-layout_mode = 0
-offset_left = 8.0
-offset_top = 199.0
-offset_right = 161.0
-offset_bottom = 274.0
-text = "host game"
 
 [node name="menu" type="Button" parent="."]
 layout_mode = 0
@@ -63,5 +43,4 @@ offset_bottom = 382.0
 text = "menu"
 
 [connection signal="button_down" from="return" to="." method="_on_return_button_down"]
-[connection signal="button_down" from="host" to="." method="_on_host_button_down"]
 [connection signal="button_down" from="menu" to="." method="_on_menu_button_down"]

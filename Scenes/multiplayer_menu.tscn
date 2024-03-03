@@ -1,4 +1,19 @@
-[gd_scene format=3 uid="uid://dl7e31r3yemiu"]
+[gd_scene load_steps=2 format=3 uid="uid://dl7e31r3yemiu"]
+
+[sub_resource type="GDScript" id="GDScript_njq5o"]
+resource_name = "MultiplayerMenu"
+script/source = "extends Control
+
+
+# Called when the node enters the scene tree for the first time.
+func _ready():
+	pass # Replace with function body.
+
+
+# Called every frame. 'delta' is the elapsed time since the previous frame.
+func _process(delta):
+	pass
+"
 
 [node name="MultiplayerMenu" type="Control"]
 layout_mode = 3
@@ -7,6 +22,7 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
+script = SubResource("GDScript_njq5o")
 
 [node name="AddressLine" type="TextEdit" parent="."]
 layout_mode = 0
