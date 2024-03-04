@@ -7,12 +7,40 @@ script/source = "extends Control
 
 # Called when the node enters the scene tree for the first time.
 func _ready():
+	$AddressLine.placeholder_text = G.ADRESS
+	$PortLine.placeholder_text = str(G.PORT)
 	pass # Replace with function body.
 
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _process(delta):
 	pass
+
+
+func _on_connect_button_down():
+	$\"../MainMenu\".connect_to_server()
+	hide()
+
+
+func _on_back_button_down():
+	hide()
+	$\"../PauseMenu\".hide()
+	$\"../MainMenu\".show()
+
+func _on_address_line_text_changed():
+	G.ADRESS = $AddressLine.text
+	$AddressLine.placeholder_text = G.ADRESS
+	if G.ADRESS == \"\":
+		G.ADRESS = \"127.0.0.1\"
+		$AddressLine.placeholder_text = G.ADRESS
+
+
+func _on_port_line_text_changed():
+	G.PORT = $PortLine.text
+	$PortLine.placeholder_text = str(G.PORT)
+	if G.PORT == 0:
+		G.PORT = 25565
+		$PortLine.placeholder_text = str(G.PORT)
 "
 
 [node name="MultiplayerMenu" type="Control"]
@@ -25,31 +53,47 @@ grow_vertical = 2
 script = SubResource("GDScript_njq5o")
 
 [node name="AddressLine" type="TextEdit" parent="."]
-layout_mode = 0
-anchor_left = 0.426215
-anchor_top = 0.476852
-anchor_right = 0.684896
-anchor_bottom = 0.632716
-offset_left = -70.5555
-offset_top = -38.3333
-offset_right = -71.6666
-offset_bottom = -40.5556
+layout_mode = 1
+anchors_preset = -1
+anchor_left = 0.371094
+anchor_top = 0.423611
+anchor_right = 0.552344
+anchor_bottom = 0.488889
+placeholder_text = "127.0.0.1"
+metadata/_edit_use_anchors_ = true
+
+[node name="PortLine" type="TextEdit" parent="."]
+layout_mode = 1
+anchors_preset = -1
+anchor_left = 0.560938
+anchor_top = 0.423611
+anchor_right = 0.625781
+anchor_bottom = 0.488889
+placeholder_text = "25565"
 metadata/_edit_use_anchors_ = true
 
 [node name="Connect" type="Button" parent="."]
 layout_mode = 0
-offset_left = 709.0
-offset_top = 431.0
-offset_right = 800.0
-offset_bottom = 475.0
+anchor_left = 0.553906
+anchor_top = 0.598611
+anchor_right = 0.625
+anchor_bottom = 0.659722
 text = "Connect
 "
+metadata/_edit_use_anchors_ = true
 
 [node name="Back" type="Button" parent="."]
 layout_mode = 0
-offset_left = 480.0
-offset_top = 425.0
-offset_right = 580.0
-offset_bottom = 474.0
+anchor_left = 0.375
+anchor_top = 0.590278
+anchor_right = 0.453125
+anchor_bottom = 0.658333
+offset_bottom = -3.05176e-05
 text = "back
 "
+metadata/_edit_use_anchors_ = true
+
+[connection signal="text_changed" from="AddressLine" to="." method="_on_address_line_text_changed"]
+[connection signal="text_changed" from="PortLine" to="." method="_on_port_line_text_changed"]
+[connection signal="button_down" from="Connect" to="." method="_on_connect_button_down"]
+[connection signal="button_down" from="Back" to="." method="_on_back_button_down"]
