@@ -80,6 +80,6 @@ visible = false
 _spawnable_scenes = PackedStringArray("res://Scenes/player.tscn")
 spawn_path = NodePath("..")
 
-[node name="MultiplayerSpawner" type="MultiplayerSpawner" parent="."]
+[node name="MultiplayerSpawnerLevel" type="MultiplayerSpawner" parent="."]
 _spawnable_scenes = PackedStringArray("res://Scenes/level1.tscn", "res://Scenes/level2.tscn", "res://Scenes/level3.tscn")
 spawn_path = NodePath("../Levels")

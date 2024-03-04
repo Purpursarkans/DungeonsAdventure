@@ -57,11 +57,11 @@ func _physics_process(delta):
 	if is_multiplayer_authority():
 		
 		if G.playerid == 1:
-			if Input.is_key_pressed(KEY_1):
+			if Input.is_action_just_pressed(\"1\"):
 				levelLoad(1)
-			if Input.is_key_pressed(KEY_2):
+			elif Input.is_action_just_pressed(\"2\"):
 				levelLoad(2)
-			if Input.is_key_pressed(KEY_3):
+			elif Input.is_action_just_pressed(\"3\"):
 				levelLoad(3)
 		
 		tempFloor = tempFloor2
