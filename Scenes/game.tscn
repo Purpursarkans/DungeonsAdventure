@@ -33,28 +33,26 @@ func _process(delta):
 			
 	pass
 
-func lvlLoad(needLevel):
-	rpc(\"levelLoad\", needLevel)
-
-@rpc(\"any_peer\",\"call_local\")
 func levelLoad(needLevel):
 	clearLevel()
 	var lvl
 	if needLevel == 1:
 		lvl = lvl1.instantiate()
 		lvl.name = \"level1\"
-	if needLevel == 2:
+	elif needLevel == 2:
 		lvl = lvl2.instantiate()
 		lvl.name = \"level2\"
-	if needLevel == 3:
+	elif needLevel == 3:
 		lvl = lvl3.instantiate()
 		lvl.name = \"level3\"
+	
 	total_lvl.add_child(lvl)
 
 func clearLevel():
-	total_lvl = get_node(\"Levels\")
 	for i in total_lvl.get_children():
+		total_lvl.remove_child(i)
 		i.queue_free()
+		
 "
 
 [node name="game" type="Node3D"]
@@ -78,8 +76,11 @@ visible = false
 
 [node name="MultiplayerSpawnerPlayer" type="MultiplayerSpawner" parent="."]
 _spawnable_scenes = PackedStringArray("res://Scenes/player.tscn")
-spawn_path = NodePath("..")
+spawn_path = NodePath("../Players")
 
 [node name="MultiplayerSpawnerLevel" type="MultiplayerSpawner" parent="."]
 _spawnable_scenes = PackedStringArray("res://Scenes/level1.tscn", "res://Scenes/level2.tscn", "res://Scenes/level3.tscn")
 spawn_path = NodePath("../Levels")
+spawn_limit = 1
+
+[node name="Players" type="Node3D" parent="."]

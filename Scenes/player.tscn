@@ -40,6 +40,9 @@ func _exit_tree():
 		$\"/root\".get_tree().reload_current_scene()
 
 func _ready():
+	$Name.text = name
+	if is_multiplayer_authority():
+		$Name.hide()
 	cam.current = is_multiplayer_authority()
 	Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
 
@@ -151,7 +154,7 @@ func take_screenshot():
 	image.save_png(screenshot_path)
 
 func levelLoad(needLevel):
-	$\"/root/game\".lvlLoad(needLevel)
+	$\"/root/game\".levelLoad(needLevel)
 "
 
 [sub_resource type="CapsuleMesh" id="CapsuleMesh_xbhj1"]
@@ -209,3 +212,8 @@ one_shot = true
 
 [node name="MultiplayerSynchronizer" type="MultiplayerSynchronizer" parent="."]
 replication_config = SubResource("SceneReplicationConfig_iw7wr")
+
+[node name="Name" type="Label3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.64188, 0)
+billboard = 1
+text = "Player"
