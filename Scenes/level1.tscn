@@ -33,12 +33,13 @@ mesh = SubResource("PlaneMesh_5wjcp")
 
 [node name="StaticBody3D" type="StaticBody3D" parent="MeshInstance3D"]
 collision_mask = 2
+metadata/object = &"floor"
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="MeshInstance3D/StaticBody3D"]
 shape = SubResource("ConcavePolygonShape3D_p4jx6")
 
 [node name="box" type="MeshInstance3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.5, 10.2)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.5, 10)
 mesh = SubResource("BoxMesh_s7c77")
 
 [node name="StaticBody3D" type="StaticBody3D" parent="box"]

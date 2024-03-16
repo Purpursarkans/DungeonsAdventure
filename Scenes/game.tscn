@@ -1,9 +1,10 @@
-[gd_scene load_steps=6 format=3 uid="uid://dqk0vqnri3qu8"]
+[gd_scene load_steps=8 format=3 uid="uid://dqk0vqnri3qu8"]
 
 [ext_resource type="PackedScene" uid="uid://d03hsg8swu0rm" path="res://Scenes/player.tscn" id="2_tlcab"]
 [ext_resource type="PackedScene" uid="uid://d2ipx5lxef4m0" path="res://Scenes/pause_menu.tscn" id="3_vspg8"]
 [ext_resource type="PackedScene" uid="uid://bhnsy5o2jefqe" path="res://Scenes/main_menu.tscn" id="4_reolg"]
 [ext_resource type="PackedScene" uid="uid://dl7e31r3yemiu" path="res://Scenes/multiplayer_menu.tscn" id="5_ehif4"]
+[ext_resource type="PackedScene" uid="uid://rv8yee32aowg" path="res://Scenes/cube.tscn" id="5_shxd6"]
 
 [sub_resource type="GDScript" id="GDScript_tnkor"]
 resource_name = "Game"
@@ -33,26 +34,128 @@ func _process(delta):
 			
 	pass
 
+
+
 func levelLoad(needLevel):
-	clearLevel()
-	var lvl
-	if needLevel == 1:
-		lvl = lvl1.instantiate()
-		lvl.name = \"level1\"
-	elif needLevel == 2:
-		lvl = lvl2.instantiate()
-		lvl.name = \"level2\"
-	elif needLevel == 3:
-		lvl = lvl3.instantiate()
-		lvl.name = \"level3\"
-	
-	total_lvl.add_child(lvl)
+	rpc(\"_levelLoad\",needLevel)
+
+
+@rpc(\"any_peer\",\"call_local\")
+func _levelLoad(needLevel):
+	if G.playerid == 1:
+		clearLevel()
+		var lvl
+		if needLevel == 1:
+			lvl = lvl1.instantiate()
+			lvl.name = \"level1\"
+		elif needLevel == 2:
+			lvl = lvl2.instantiate()
+			lvl.name = \"level2\"
+		elif needLevel == 3:
+			lvl = lvl3.instantiate()
+			lvl.name = \"level3\"
+		
+		total_lvl.add_child(lvl)
 
 func clearLevel():
 	for i in total_lvl.get_children():
 		total_lvl.remove_child(i)
 		i.queue_free()
+"
+
+[sub_resource type="GDScript" id="GDScript_u8n5w"]
+resource_name = "Blocks"
+script/source = "#@tool
+
+extends Node3D
+
+@export var cube : PackedScene
+
+@export var X : int = 2 :
+	get:
+		return X
+	set(value):
+		X = value
+		#spawn()
+
+@export var Y : int = 2 :
+	get:
+		return Y
+	set(value):
+		Y = value
+		#spawn()
+@export var Z : int = 2 :
+	get:
+		return Z
+	set(value):
+		Z = value
+		#spawn()
+
+
+
+func _ready():
+	set_meta(\"object\", \"Blocks\")
+	#spawn()
+
+
+var posTree : Vector3
+
+func spawn():
+	posTree = Vector3(0,0,0)
+	var num = 0
+	print_debug(\"spawn\")
+	for i in get_children():
+		remove_child(i)
+		i.queue_free()
+	for i in Y:
+		for j in X:
+			for k in Z:
+				num+=1
+				var cubeInst = cube.instantiate()
+				cubeInst.position = posTree
+				cubeInst.name = \"cube\"+str(num)
+				add_child(cubeInst)
+				#if Engine.is_editor_hint():
+					#cubeInst.owner = get_tree().edited_scene_root
+				posTree.z += 1
+			posTree.x += 1
+			posTree.z  = 0
+		posTree.y += 1
+		posTree.z  = 0
+		posTree.x  = 0
+	pass
+
+
+func addCube(action_object_name,action_object_meta,action_object_pos,vector_collision_point, vector_collision_normal):
+	_addCube.rpc(action_object_name,action_object_meta,action_object_pos,vector_collision_point, vector_collision_normal)
+
+@rpc(\"any_peer\",\"call_local\")
+func _addCube(action_object_name,action_object_meta,action_object_pos,vector_collision_point, vector_collision_normal):
+	if G.playerid == 1:
+		print_debug(\"---\",\"\\nact obj name: \",action_object_name,
+					\"\\nmeta: \",action_object_meta,
+					\"\\nact object pose: \",action_object_pos,
+					\"\\nvector point: \",vector_collision_point,
+					\"\\nvector norma: \",vector_collision_normal)
+		var cubeName = get_node(str(action_object_name))
+		if cubeName != null:
+			print_debug(\"mesh: \",cubeName)
 		
+		var cubeInst = cube.instantiate()
+		if cubeName != null :
+			cubeInst.position = action_object_pos + vector_collision_normal
+		else:
+			cubeInst.position.x = int(vector_collision_point.x-position.x)
+			cubeInst.position.z = int(vector_collision_point.z-position.z)
+		print_debug(\"new cube pos \",cubeInst.position)
+		add_child(cubeInst,true)
+
+@rpc(\"any_peer\",\"call_local\")
+func test(action_object_name,action_object_meta,vector_collision_point, vector_collision_normal):
+	#var tempcube = cubeName
+	#var inst = instance_from_id(cubeName)
+	print_debug(action_object_name)
+	print_debug(G.playerid,\"+=+\", action_object_name,\"\\n\", action_object_meta)
 "
 
 [node name="game" type="Node3D"]
@@ -60,11 +163,6 @@ script = SubResource("GDScript_tnkor")
 PlayerScene = ExtResource("2_tlcab")
 
 [node name="Levels" type="Node3D" parent="."]
-
-[node name="Label" type="Label" parent="."]
-offset_right = 40.0
-offset_bottom = 23.0
-text = "test"
 
 [node name="MainMenu" parent="." instance=ExtResource("4_reolg")]
 
@@ -84,3 +182,18 @@ spawn_path = NodePath("../Levels")
 spawn_limit = 1
 
 [node name="Players" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5, 5, 5)
+
+[node name="Blocks" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5, 0.5, 5)
+script = SubResource("GDScript_u8n5w")
+cube = ExtResource("5_shxd6")
+X = 0
+Y = 0
+Z = 0
+metadata/object = "Blocks"
+
+[node name="MultiplayerSpawnerBlocks" type="MultiplayerSpawner" parent="."]
+_spawnable_scenes = PackedStringArray("res://Scenes/cube.tscn")
+spawn_path = NodePath("../Blocks")
+spawn_limit = 2

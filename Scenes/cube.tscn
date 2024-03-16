@@ -1,0 +1,67 @@
+[gd_scene load_steps=7 format=3 uid="uid://rv8yee32aowg"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_5itbo"]
+albedo_color = Color(0.537255, 0.164706, 0.188235, 1)
+
+[sub_resource type="BoxMesh" id="BoxMesh_hkf8m"]
+material = SubResource("StandardMaterial3D_5itbo")
+
+[sub_resource type="GDScript" id="GDScript_h3blj"]
+resource_name = "cube"
+script/source = "extends MeshInstance3D
+
+func _ready():
+	set_meta('object', 'cube')
+
+func _process(delta):
+	pass
+
+func delete():
+	rpc(\"_delete\")
+
+@rpc(\"any_peer\", \"call_local\")
+func _delete():
+	if G.playerid == 1:
+			get_parent().remove_child(self)
+			queue_free()
+"
+
+[sub_resource type="GDScript" id="GDScript_yf0o5"]
+resource_name = "CubeStatic"
+script/source = "extends StaticBody3D
+
+
+# Called when the node enters the scene tree for the first time.
+func _ready():
+	set_meta('object', 'cubeStatic')
+	pass # Replace with function body.
+
+
+# Called every frame. 'delta' is the elapsed time since the previous frame.
+func _process(delta):
+	pass
+
+func delete():
+	$\"..\".delete()
+"
+
+[sub_resource type="ConcavePolygonShape3D" id="ConcavePolygonShape3D_0yyrc"]
+data = PackedVector3Array(-0.5, 0.5, 0.5, 0.5, 0.5, 0.5, -0.5, -0.5, 0.5, 0.5, 0.5, 0.5, 0.5, -0.5, 0.5, -0.5, -0.5, 0.5, 0.5, 0.5, -0.5, -0.5, 0.5, -0.5, 0.5, -0.5, -0.5, -0.5, 0.5, -0.5, -0.5, -0.5, -0.5, 0.5, -0.5, -0.5, 0.5, 0.5, 0.5, 0.5, 0.5, -0.5, 0.5, -0.5, 0.5, 0.5, 0.5, -0.5, 0.5, -0.5, -0.5, 0.5, -0.5, 0.5, -0.5, 0.5, -0.5, -0.5, 0.5, 0.5, -0.5, -0.5, -0.5, -0.5, 0.5, 0.5, -0.5, -0.5, 0.5, -0.5, -0.5, -0.5, 0.5, 0.5, 0.5, -0.5, 0.5, 0.5, 0.5, 0.5, -0.5, -0.5, 0.5, 0.5, -0.5, 0.5, -0.5, 0.5, 0.5, -0.5, -0.5, -0.5, 0.5, 0.5, -0.5, 0.5, -0.5, -0.5, -0.5, 0.5, -0.5, 0.5, 0.5, -0.5, -0.5, -0.5, -0.5, -0.5)
+
+[sub_resource type="SceneReplicationConfig" id="SceneReplicationConfig_yuxxl"]
+properties/0/path = NodePath(".:position")
+properties/0/spawn = true
+properties/0/replication_mode = 1
+
+[node name="cube" type="MeshInstance3D"]
+mesh = SubResource("BoxMesh_hkf8m")
+script = SubResource("GDScript_h3blj")
+
+[node name="StaticCube" type="StaticBody3D" parent="."]
+script = SubResource("GDScript_yf0o5")
+
+[node name="CollisionCube" type="CollisionShape3D" parent="StaticCube"]
+shape = SubResource("ConcavePolygonShape3D_0yyrc")
+
+[node name="MultiplayerSynchronizer" type="MultiplayerSynchronizer" parent="."]
+replication_config = SubResource("SceneReplicationConfig_yuxxl")

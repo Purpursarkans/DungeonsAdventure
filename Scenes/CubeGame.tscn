@@ -1,0 +1,97 @@
+[gd_scene load_steps=7 format=3 uid="uid://ddq5hct78yjj7"]
+
+[ext_resource type="PackedScene" path="res://Scenes/cube.tscn" id="1_6ik3j"]
+[ext_resource type="PackedScene" uid="uid://d03hsg8swu0rm" path="res://Scenes/player.tscn" id="1_hl67i"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_4canj"]
+albedo_color = Color(0, 0.568627, 0, 1)
+
+[sub_resource type="PlaneMesh" id="PlaneMesh_2f2qt"]
+material = SubResource("StandardMaterial3D_4canj")
+
+[sub_resource type="ConcavePolygonShape3D" id="ConcavePolygonShape3D_fxyq5"]
+data = PackedVector3Array(1, 0, 1, -1, 0, 1, 1, 0, -1, -1, 0, 1, -1, 0, -1, 1, 0, -1)
+
+[sub_resource type="GDScript" id="GDScript_a1fl0"]
+resource_name = "Blocks"
+script/source = "@tool
+
+extends Node3D
+
+@export var X : int = 2 :
+	get:
+		return X
+	set(value):
+		X = value
+		spawn()
+
+@export var Y : int = 2 :
+	get:
+		return Y
+	set(value):
+		Y = value
+		spawn()
+@export var Z : int = 2 :
+	get:
+		return Z
+	set(value):
+		Z = value
+		spawn()
+
+@export var cube : PackedScene
+
+func _ready():
+	spawn()
+
+
+var posTree : Vector3
+
+func spawn():
+	
+	
+	posTree = Vector3(0,0,0)
+	
+	print_debug(\"spawn\")
+	for i in get_children():
+		remove_child(i)
+		i.queue_free()
+	for i in Y:
+		for j in X:
+			for k in Z:
+				var cubeInst = cube.instantiate()
+				cubeInst.position = posTree
+				add_child(cubeInst)
+				posTree.z += 1
+			posTree.x += 1
+			posTree.z  = 0
+		posTree.y += 1
+		posTree.z  = 0
+		posTree.x  = 0
+	pass
+"
+
+[node name="game" type="Node3D"]
+
+[node name="Player" parent="." instance=ExtResource("1_hl67i")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 7.93499, 3.19087, 2.90011)
+
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
+transform = Transform3D(-0.866023, -0.433016, 0.250001, 0, 0.499998, 0.866027, -0.500003, 0.749999, -0.43301, 0, 0, 0)
+shadow_enabled = true
+
+[node name="Floor" type="MeshInstance3D" parent="."]
+transform = Transform3D(44.125, 0, 0, 0, 44.125, 0, 0, 0, 44.125, 0, 0, 0)
+mesh = SubResource("PlaneMesh_2f2qt")
+
+[node name="StaticBody3D" type="StaticBody3D" parent="Floor"]
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Floor/StaticBody3D"]
+shape = SubResource("ConcavePolygonShape3D_fxyq5")
+
+[node name="Camera3D" type="Camera3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, -4.37114e-08, 1, 0, -1, -4.37114e-08, 0, 29.1576, 0)
+
+[node name="Blocks" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.5, 0)
+script = SubResource("GDScript_a1fl0")
+cube = ExtResource("1_6ik3j")

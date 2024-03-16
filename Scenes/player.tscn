@@ -41,32 +41,44 @@ func _exit_tree():
 
 func _ready():
 	$Name.text = name
+	$Name2.text = name
+	
 	if is_multiplayer_authority():
 		$Name.hide()
+	if !is_multiplayer_authority():
+		$Name2.hide()
 	cam.current = is_multiplayer_authority()
 	Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
 
-var action_object = null
+var action_object : Object = null
 
-func action():
+func actionLeft():
 	print_debug($Head/RayCast3D.get_collider())
 	action_object = $Head/RayCast3D.get_collider()
 	if action_object != null:
 		print_debug(action_object.name,\" Click\")
 		if action_object.name == \"Door\":
 			action_object.open()
+		if action_object.get_meta('object', 'none') == 'cubeStatic':
+			action_object.delete()
+
+func actionRight():
+	action_object = $Head/RayCast3D.get_collider()
+	if action_object != null:
+		$\"/root/game/Blocks\".addCube(action_object.get_parent().name, 
+		action_object.get_meta('object'),
+		action_object.get_parent().position, 
+		Vector3($Head/RayCast3D.get_collision_point()),  
+		Vector3($Head/RayCast3D.get_collision_normal()))
 
 func _physics_process(delta):
+	if Input.is_action_just_pressed(\"1\"):
+		levelLoad(1)
+	elif Input.is_action_just_pressed(\"2\"):
+		levelLoad(2)
+	elif Input.is_action_just_pressed(\"3\"):
+		levelLoad(3)
 	if is_multiplayer_authority():
-		
-		if G.playerid == 1:
-			if Input.is_action_just_pressed(\"1\"):
-				levelLoad(1)
-			elif Input.is_action_just_pressed(\"2\"):
-				levelLoad(2)
-			elif Input.is_action_just_pressed(\"3\"):
-				levelLoad(3)
-		
 		tempFloor = tempFloor2
 		tempFloor2 = is_on_floor()
 		
@@ -135,7 +147,9 @@ func _input(e):
 				
 			if e is InputEventMouse:
 				if e.is_action_pressed(\"leftMouse\"):
-					action()
+					actionLeft()
+				elif  e.is_action_pressed(\"rightMouse\"):
+					actionRight()
 
 
 
@@ -197,7 +211,7 @@ skeleton = NodePath("../..")
 [node name="Camera3D" type="Camera3D" parent="Head"]
 
 [node name="RayCast3D" type="RayCast3D" parent="Head"]
-transform = Transform3D(1, 0, 0, 0, -4.37114e-08, 1, 0, -1, -4.37114e-08, 0, 0, 0)
+transform = Transform3D(0.13, 0, 0, 0, -8.76413e-08, 0.13, 0, -2.005, -5.68248e-09, 0, 0, 0)
 target_position = Vector3(0, 2, 0)
 
 [node name="Audio" type="Node3D" parent="."]
@@ -217,3 +231,7 @@ replication_config = SubResource("SceneReplicationConfig_iw7wr")
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.64188, 0)
 billboard = 1
 text = "Player"
+
+[node name="Name2" type="Label" parent="."]
+offset_right = 40.0
+offset_bottom = 23.0
