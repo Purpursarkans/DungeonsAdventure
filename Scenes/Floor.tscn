@@ -1,0 +1,28 @@
+[gd_scene load_steps=6 format=3 uid="uid://u0ba1tqpmrow"]
+
+[ext_resource type="Texture2D" uid="uid://dt0402ovc2j2" path="res://Textures/grass.tres" id="1_t2137"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_wi4h2"]
+albedo_texture = ExtResource("1_t2137")
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_qp004"]
+albedo_color = Color(0, 0.756863, 0.247059, 1)
+albedo_texture = ExtResource("1_t2137")
+
+[sub_resource type="PlaneMesh" id="PlaneMesh_l6u32"]
+material = SubResource("StandardMaterial3D_qp004")
+
+[sub_resource type="ConcavePolygonShape3D" id="ConcavePolygonShape3D_r4e6y"]
+data = PackedVector3Array(1, 0, 1, -1, 0, 1, 1, 0, -1, -1, 0, 1, -1, 0, -1, 1, 0, -1)
+
+[node name="FloorInstance3D" type="MeshInstance3D"]
+transform = Transform3D(1000, 0, 0, 0, 1000, 0, 0, 0, 1000, 0, 0, 0)
+material_override = SubResource("StandardMaterial3D_wi4h2")
+mesh = SubResource("PlaneMesh_l6u32")
+
+[node name="StaticFloor3D2" type="StaticBody3D" parent="."]
+collision_mask = 2
+metadata/object = &"floor"
+
+[node name="CollisionFloor3D" type="CollisionShape3D" parent="StaticFloor3D2"]
+shape = SubResource("ConcavePolygonShape3D_r4e6y")

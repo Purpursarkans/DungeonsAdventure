@@ -18,12 +18,17 @@ func _process(delta):
 
 func delete():
 	rpc(\"_delete\")
-
+	
+	
 @rpc(\"any_peer\", \"call_local\")
 func _delete():
 	if G.playerid == 1:
-			get_parent().remove_child(self)
-			queue_free()
+		$\"/root/game/Blocks\".BreakBlockAudio(position)
+		get_parent().remove_child(self)
+		queue_free()
+
+
+
 "
 
 [sub_resource type="GDScript" id="GDScript_yf0o5"]

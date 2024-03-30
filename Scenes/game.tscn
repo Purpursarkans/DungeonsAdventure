@@ -31,10 +31,6 @@ func _process(delta):
 			Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
 			$PauseMenu.show()
 		G.pause = !G.pause
-			
-	pass
-
-
 
 func levelLoad(needLevel):
 	rpc(\"_levelLoad\",needLevel)
@@ -131,24 +127,25 @@ func addCube(action_object_name,action_object_meta,action_object_pos,vector_coll
 
 @rpc(\"any_peer\",\"call_local\")
 func _addCube(action_object_name,action_object_meta,action_object_pos,vector_collision_point, vector_collision_normal):
+	var cubeInst = cube.instantiate()
 	if G.playerid == 1:
 		print_debug(\"---\",\"\\nact obj name: \",action_object_name,
 					\"\\nmeta: \",action_object_meta,
 					\"\\nact object pose: \",action_object_pos,
 					\"\\nvector point: \",vector_collision_point,
 					\"\\nvector norma: \",vector_collision_normal)
-		var cubeName = get_node(str(action_object_name))
-		if cubeName != null:
-			print_debug(\"mesh: \",cubeName)
 		
-		var cubeInst = cube.instantiate()
-		if cubeName != null :
+		if action_object_meta == \"cubeStatic\":
 			cubeInst.position = action_object_pos + vector_collision_normal
-		else:
+		elif action_object_meta == \"floor\":
 			cubeInst.position.x = int(vector_collision_point.x-position.x)
 			cubeInst.position.z = int(vector_collision_point.z-position.z)
+		else:
+			cubeInst.position = action_object_pos + vector_collision_normal-position
 		print_debug(\"new cube pos \",cubeInst.position)
 		add_child(cubeInst,true)
+		rpc(\"PlaceBlockAudio\",cubeInst.position)
+
 
 @rpc(\"any_peer\",\"call_local\")
 func test(action_object_name,action_object_meta,vector_collision_point, vector_collision_normal):
@@ -156,6 +153,39 @@ func test(action_object_name,action_object_meta,vector_collision_point, vector_c
 	#var inst = instance_from_id(cubeName)
 	print_debug(action_object_name)
 	print_debug(G.playerid,\"+=+\", action_object_name,\"\\n\", action_object_meta)
+
+
+@rpc(\"any_peer\",\"call_local\")
+func PlaceBlockAudio(pos):
+	var inst = AudioStreamPlayer3D.new()
+	inst.position = pos
+	#inst.volume_db = -5
+	inst.stream = load(\"res://sound/block2.ogg\")
+	add_child(inst)
+	inst.play()
+	inst.finished.connect(PlaceBlockAudioFinish.bind(inst))
+
+
+func PlaceBlockAudioFinish(inst : AudioStreamPlayer3D):
+	inst.queue_free()
+
+
+func BreakBlockAudio(pos):
+	rpc(\"_BreakBlockAudio\", pos)
+
+@rpc(\"any_peer\",\"call_local\")
+func _BreakBlockAudio(pos):
+	var inst = AudioStreamPlayer3D.new()
+	inst.position = pos
+	#inst.volume_db = -5
+	inst.stream = load(\"res://sound/block1.ogg\")
+	get_parent().add_child(inst)
+	inst.play()
+	inst.finished.connect(BreakBlockAudioFinish.bind(inst))
+
+
+func BreakBlockAudioFinish(inst : AudioStreamPlayer3D):
+	inst.queue_free()
 "
 
 [node name="game" type="Node3D"]
@@ -184,16 +214,12 @@ spawn_limit = 1
 [node name="Players" type="Node3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5, 5, 5)
 
+[node name="MultiplayerSpawnerBlocks" type="MultiplayerSpawner" parent="."]
+_spawnable_scenes = PackedStringArray("res://Scenes/cube.tscn")
+spawn_path = NodePath("../Blocks")
+
 [node name="Blocks" type="Node3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5, 0.5, 5)
 script = SubResource("GDScript_u8n5w")
 cube = ExtResource("5_shxd6")
-X = 0
-Y = 0
-Z = 0
 metadata/object = "Blocks"
-
-[node name="MultiplayerSpawnerBlocks" type="MultiplayerSpawner" parent="."]
-_spawnable_scenes = PackedStringArray("res://Scenes/cube.tscn")
-spawn_path = NodePath("../Blocks")
-spawn_limit = 2

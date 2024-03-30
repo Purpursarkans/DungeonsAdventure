@@ -13,6 +13,5 @@ var PORT : int = 25565
 
 
 func _process(delta):
-	#if Input.is_action_just_pressed("escape"):
-		#get_tree().quit()
+	
 	pass

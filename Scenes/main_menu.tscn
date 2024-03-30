@@ -9,15 +9,13 @@ script/source = "extends Control
 
 @export var playerScene : PackedScene
 
-var upnp = UPNP.new()
 var peer = ENetMultiplayerPeer.new()
 
 func _ready():
+	multiplayer.peer_disconnected.connect(del_player)
 	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
 	pass
 
-func _process(delta):
-	pass
 
 func _on_exit_button_down():
 	get_tree().quit()
@@ -46,7 +44,6 @@ func add_player(id = 1):
 	$\"/root/game/Players\".call_deferred(\"add_child\",player)
 	
 func exit_game(id):
-	multiplayer.peer_disconnected.connect(del_player)
 	del_player(id)
 
 func del_player(id):

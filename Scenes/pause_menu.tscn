@@ -13,9 +13,18 @@ func _on_return_button_down():
 
 
 func _on_menu_button_down():
-	print_debug(G.playerid)
-	$\"/root/game/MainMenu\".exit_game(G.playerid)
+	print_debug(\"MENU BUTTON DOWN \",G.playerid)
+	
+	if G.playerid == 1:
+		for i in $\"/root/game/Players\".get_children():
+			print_debug(\"CLOSE SERVER DISCONNECT \", i.name)
+			$\"/root/game/MainMenu\".exit_game(int(str(i.name)))
+	else:
+		$\"/root/game/MainMenu\".exit_game(G.playerid)
+	
 	$\"/root\".get_tree().reload_current_scene()
+	
+	
 "
 
 [node name="PauseMenu" type="Control"]

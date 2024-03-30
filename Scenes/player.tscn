@@ -33,11 +33,15 @@ func _enter_tree():
 		G.playerid = name.to_int()
 
 func _exit_tree():
+	print_debug(\"EXIT TREE \", G.playerid, \"\\n\",\"EXIT ID \",get_multiplayer_authority())
+	
 	if is_multiplayer_authority():
+		print_debug(\"DISCONNECT \", G.playerid)
+		$\"/root/game/MainMenu\".peer.close()
 		$\"/root/game/MainMenu\".peer = null
-		$\"/root/game/MainMenu\".peer = ENetMultiplayerPeer.new()
+		#$\"/root/game/MainMenu\".peer = ENetMultiplayerPeer.new()
 		G.playerid = null
-		$\"/root\".get_tree().reload_current_scene()
+		$\"/root\".get_tree().reload_current_scene.call_deferred()
 
 func _ready():
 	$Name.text = name
@@ -221,6 +225,8 @@ wait_time = 0.4
 one_shot = true
 
 [node name="AudioWalk" type="AudioStreamPlayer" parent="Audio"]
+
+[node name="AudioWalk3D" type="AudioStreamPlayer3D" parent="Audio"]
 
 [node name="Screenshot" type="AudioStreamPlayer" parent="Audio"]
 
